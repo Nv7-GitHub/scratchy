@@ -64,7 +64,7 @@ func (p *Program) MakeVariable(name string, global bool, typ Type, sprite *sprit
 	var val interface{}
 	nameV := p.GetVarName(name, global)
 	switch typ.(type) {
-	case *BasicType:
+	case BasicType:
 		val = sprite.AddVariable(nameV, "")
 
 	case *ArrayType:
