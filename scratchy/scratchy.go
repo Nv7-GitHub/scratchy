@@ -2,92 +2,12 @@ package scratchy
 
 import (
 	"fmt"
+	"go/token"
 
 	"github.com/Nv7-Github/scratch/blocks"
+	"github.com/Nv7-Github/scratch/sprites"
 	"github.com/Nv7-Github/scratch/types"
 )
-
-type Type interface {
-	fmt.Stringer
-
-	BasicType() BasicType
-	Equal(Type) bool
-}
-
-type BasicType int
-
-const (
-	NUMBER BasicType = iota
-	STRING
-	BOOL
-	ARRAY
-	MAP
-)
-
-var basicTypeNames = map[BasicType]string{
-	NUMBER: "number",
-	STRING: "string",
-	BOOL:   "bool",
-}
-
-func (b BasicType) BasicType() BasicType {
-	return b
-}
-
-func (b BasicType) Equal(t Type) bool {
-	return t.BasicType() == b
-}
-
-func (b BasicType) String() string {
-	return basicTypeNames[b]
-}
-
-type ArrayType struct {
-	ValueType BasicType
-}
-
-func NewArrayType(ValType BasicType) *ArrayType {
-	return &ArrayType{ValType}
-}
-
-func (a *ArrayType) BasicType() BasicType {
-	return ARRAY
-}
-
-func (a *ArrayType) Equal(t Type) bool {
-	if t.BasicType() != ARRAY {
-		return false
-	}
-	return t.(*ArrayType).ValueType == a.ValueType
-}
-
-func (a *ArrayType) String() string {
-	return fmt.Sprintf("array<%s>", a.ValueType.String())
-}
-
-type MapType struct {
-	KeyType BasicType
-	ValType BasicType
-}
-
-func NewMapType(keyType, valType BasicType) *MapType {
-	return &MapType{keyType, valType}
-}
-
-func (m *MapType) BasicType() BasicType {
-	return MAP
-}
-
-func (m *MapType) Equal(t Type) bool {
-	if t.BasicType() != MAP {
-		return false
-	}
-	return t.(*MapType).KeyType == m.KeyType && t.(*MapType).ValType == m.ValType
-}
-
-func (m *MapType) String() string {
-	return fmt.Sprintf("map<%s,%s>", m.KeyType.String(), m.ValType.String())
-}
 
 type GlobalFunction struct {
 	Name       string
@@ -98,13 +18,23 @@ type GlobalFunction struct {
 type Variable struct {
 	Name  string
 	Type  Type
-	Value *types.Variable
+	Value interface{}
+}
+
+type MapValue struct {
+	Key *types.List
+	Val *types.List
+}
+
+type ArrayValue struct {
+	Val *types.List
 }
 
 type Sprite struct {
 	Name      string
 	Functions map[string]*Function
 	Variables map[string]*Variable
+	Sprite    *sprites.Sprite
 }
 
 type Function struct {
@@ -119,6 +49,20 @@ type Program struct {
 	GlobalVariables map[string]*Variable
 	Sprites         map[string]*Sprite
 
+	Fset *token.FileSet
+
 	CurrSprite *Sprite
 	CurrStack  blocks.Stack
+}
+
+func (p *Program) NewError(pos token.Pos, format string, args ...interface{}) error {
+	return fmt.Errorf("%s: "+format, append([]interface{}{p.Fset.Position(pos).String()}, args...)...)
+}
+
+func newProgram() *Program {
+	return &Program{
+		GlobalFunctions: make(map[string]*GlobalFunction),
+		GlobalVariables: make(map[string]*Variable),
+		Sprites:         make(map[string]*Sprite),
+	}
 }
