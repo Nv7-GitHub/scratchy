@@ -34,7 +34,7 @@ func (p *Program) FunctionPass(file *ast.File) error {
 			for _, par := range gfn.Params {
 				switch par.Type.(BasicType) {
 				case NUMBER, STRING:
-					parTypes = append(parTypes, blocks.NewFunctionParameterValue(par.Name, blocks.FunctionParameterBool, ""))
+					parTypes = append(parTypes, blocks.NewFunctionParameterValue(par.Name, blocks.FunctionParameterString, ""))
 
 				case BOOL:
 					parTypes = append(parTypes, blocks.NewFunctionParameterValue(par.Name, blocks.FunctionParameterBool, false))
