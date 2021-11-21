@@ -9,10 +9,15 @@ import (
 	"github.com/Nv7-Github/scratch/types"
 )
 
+type Param struct {
+	Name string
+	Type Type
+}
+
 type GlobalFunction struct {
-	Name       string
-	ParamTypes []Type
-	RetType    Type
+	Name    string
+	Params  []Param
+	RetType Type
 }
 
 type Variable struct {
@@ -38,9 +43,7 @@ type Sprite struct {
 }
 
 type Function struct {
-	Name           string
-	Params         []Type
-	RetType        Type
+	GlobalFunction
 	ScratchFuntion *blocks.Function
 }
 
