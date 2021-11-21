@@ -73,17 +73,20 @@ func (p *Program) GetGlobalFunction(fn *ast.FuncDecl) (GlobalFunction, error) {
 		}
 	}
 
-	retTyp, err := p.ConvType(typ.Results.List[0].Type)
-	if err != nil {
-		return GlobalFunction{}, err
-	}
-	_, ok := retTyp.(BasicType)
-	if !ok {
-		return GlobalFunction{}, p.NewError(typ.Results.List[0].Pos(), "currently composite values can't be function returns")
+	var retType Type
+	if typ.Results != nil && len(typ.Results.List) > 0 {
+		retTyp, err := p.ConvType(typ.Results.List[0].Type)
+		if err != nil {
+			return GlobalFunction{}, err
+		}
+		_, ok := retTyp.(BasicType)
+		if !ok {
+			return GlobalFunction{}, p.NewError(typ.Results.List[0].Pos(), "currently composite values can't be function returns")
+		}
 	}
 	return GlobalFunction{
 		Name:    name,
 		Params:  params,
-		RetType: retTyp,
+		RetType: retType,
 	}, nil
 }
