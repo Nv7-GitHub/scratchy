@@ -27,7 +27,7 @@ func (p *Program) SpritePass(file *ast.File) error {
 				}
 
 				for _, name := range spec.Names {
-					v := p.MakeVariable(name.Name, typ, scratch.Stage.BasicSprite)
+					v := p.MakeVariable(name.Name, true, typ, scratch.Stage.BasicSprite)
 					p.GlobalVariables[v.Name] = v
 				}
 				continue
@@ -48,15 +48,14 @@ func (p *Program) SpritePass(file *ast.File) error {
 			// Add Fields
 			typ := spec.Type.(*ast.StructType)
 			for _, field := range typ.Fields.List {
-				typVal := field.Type.(*ast.Ident)
-				typ, err := p.ConvType(typVal)
+				typ, err := p.ConvType(field.Type)
 				if err != nil {
 					return err
 				}
 
 				// Add fields
 				for _, name := range field.Names {
-					v := p.MakeVariable(name.Name, typ, sprite.BasicSprite)
+					v := p.MakeVariable(name.Name, false, typ, sprite.BasicSprite)
 					spriteV.Variables[v.Name] = v
 				}
 			}
@@ -66,9 +65,9 @@ func (p *Program) SpritePass(file *ast.File) error {
 	return nil
 }
 
-func (p *Program) MakeVariable(name string, typ Type, sprite *sprites.BasicSprite) *Variable {
+func (p *Program) MakeVariable(name string, global bool, typ Type, sprite *sprites.BasicSprite) *Variable {
 	var val interface{}
-	nameV := p.GetVarName(name)
+	nameV := p.GetVarName(name, global)
 	switch typ.(type) {
 	case *BasicType:
 		val = sprite.AddVariable(nameV, "")

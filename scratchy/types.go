@@ -126,5 +126,5 @@ func (m *MapType) Equal(t Type) bool {
 }
 
 func (m *MapType) String() string {
-	return fmt.Sprintf("map<%s,%s>", m.KeyType.String(), m.ValType.String())
+	return fmt.Sprintf("map<%s, %s>", m.KeyType.String(), m.ValType.String())
 }
