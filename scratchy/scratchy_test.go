@@ -9,9 +9,22 @@ import (
 
 	"github.com/Nv7-Github/scratch"
 	"github.com/Nv7-Github/scratch/assets"
+	"github.com/Nv7-Github/scratchy/functions"
 )
 
 func TestScratchy(t *testing.T) {
+	// Save bindings
+	f, err := os.Create("../scratch/bindings.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = f.WriteString(functions.GenBindings())
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.Close()
+
+	// Create project
 	scratch.Clear()
 
 	fset := token.NewFileSet()
