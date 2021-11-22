@@ -1,51 +1,8 @@
-package scratchy
+package types
 
 import (
 	"fmt"
-	"go/ast"
 )
-
-func (p *Program) ConvType(typ ast.Expr) (Type, error) {
-	switch t := typ.(type) {
-	case *ast.Ident:
-		name := t.Name
-		bTyp, ok := basicTypeConv[name]
-		if !ok {
-			return nil, p.NewError(typ.Pos(), "unknown type: %s", name)
-		}
-		return bTyp, nil
-
-	case *ast.ArrayType:
-		valTyp := t.Elt.(*ast.Ident).Name
-		valType, ok := basicTypeConv[valTyp]
-		if !ok {
-			return nil, p.NewError(typ.Pos(), "unknown array value type: %s", valTyp)
-		}
-		return NewArrayType(valType), nil
-
-	case *ast.MapType:
-		keyTyp := t.Key.(*ast.Ident).Name
-		valTyp := t.Value.(*ast.Ident).Name
-		keyType, ok := basicTypeConv[keyTyp]
-		if !ok {
-			return nil, p.NewError(typ.Pos(), "unknown map key type: %s", keyTyp)
-		}
-		valType, ok := basicTypeConv[valTyp]
-		if !ok {
-			return nil, p.NewError(typ.Pos(), "unknown map value type: %s", valTyp)
-		}
-		return NewMapType(keyType, valType), nil
-
-	default:
-		return nil, p.NewError(typ.Pos(), "unknown type: %v", typ)
-	}
-}
-
-var basicTypeConv = map[string]BasicType{
-	"bool":    BOOL,
-	"float64": NUMBER,
-	"string":  STRING,
-}
 
 type Type interface {
 	fmt.Stringer

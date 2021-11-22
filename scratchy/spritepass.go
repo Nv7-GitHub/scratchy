@@ -5,6 +5,7 @@ import (
 
 	"github.com/Nv7-Github/scratch"
 	"github.com/Nv7-Github/scratch/sprites"
+	"github.com/Nv7-Github/scratchy/types"
 )
 
 func (p *Program) SpritePass(file *ast.File) error {
@@ -60,17 +61,17 @@ func (p *Program) SpritePass(file *ast.File) error {
 	return nil
 }
 
-func (p *Program) MakeVariable(name string, global bool, typ Type, sprite *sprites.BasicSprite) *Variable {
+func (p *Program) MakeVariable(name string, global bool, typ types.Type, sprite *sprites.BasicSprite) *Variable {
 	var val interface{}
 	nameV := p.GetVarName(name, global)
 	switch typ.(type) {
-	case BasicType:
+	case types.BasicType:
 		val = sprite.AddVariable(nameV, "")
 
-	case *ArrayType:
+	case *types.ArrayType:
 		val = ArrayValue{sprite.AddList(nameV, []interface{}{})}
 
-	case *MapType:
+	case *types.MapType:
 		val = MapValue{sprite.AddList(nameV+"_key", []interface{}{}), sprite.AddList(nameV+"_value", []interface{}{})}
 	}
 

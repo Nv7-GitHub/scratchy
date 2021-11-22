@@ -7,22 +7,24 @@ import (
 	"github.com/Nv7-Github/scratch/blocks"
 	"github.com/Nv7-Github/scratch/sprites"
 	"github.com/Nv7-Github/scratch/types"
+
+	styps "github.com/Nv7-Github/scratchy/types"
 )
 
 type Param struct {
 	Name string
-	Type Type
+	Type styps.Type
 }
 
 type GlobalFunction struct {
 	Name    string
 	Params  []Param
-	RetType Type
+	RetType styps.Type
 }
 
 type Variable struct {
 	Name  string
-	Type  Type
+	Type  styps.Type
 	Value interface{}
 }
 

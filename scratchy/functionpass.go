@@ -4,6 +4,7 @@ import (
 	"go/ast"
 
 	"github.com/Nv7-Github/scratch/blocks"
+	"github.com/Nv7-Github/scratchy/types"
 )
 
 func (p *Program) FunctionPass(file *ast.File) error {
@@ -32,11 +33,11 @@ func (p *Program) FunctionPass(file *ast.File) error {
 			// Local function
 			parTypes := []blocks.FunctionParameter{blocks.NewFunctionParameterLabel(gfn.Name)}
 			for _, par := range gfn.Params {
-				switch par.Type.(BasicType) {
-				case NUMBER, STRING:
+				switch par.Type.(types.BasicType) {
+				case types.NUMBER, types.STRING:
 					parTypes = append(parTypes, blocks.NewFunctionParameterValue(par.Name, blocks.FunctionParameterString, ""))
 
-				case BOOL:
+				case types.BOOL:
 					parTypes = append(parTypes, blocks.NewFunctionParameterValue(par.Name, blocks.FunctionParameterBool, false))
 				}
 			}
@@ -60,7 +61,7 @@ func (p *Program) GetGlobalFunction(fn *ast.FuncDecl) (GlobalFunction, error) {
 		if err != nil {
 			return GlobalFunction{}, err
 		}
-		_, ok := typ.(BasicType)
+		_, ok := typ.(types.BasicType)
 		if !ok {
 			return GlobalFunction{}, p.NewError(par.Type.Pos(), "currently composite values can't be function parameters")
 		}
@@ -73,13 +74,13 @@ func (p *Program) GetGlobalFunction(fn *ast.FuncDecl) (GlobalFunction, error) {
 		}
 	}
 
-	var retType Type
+	var retType types.Type
 	if typ.Results != nil && len(typ.Results.List) > 0 {
 		retTyp, err := p.ConvType(typ.Results.List[0].Type)
 		if err != nil {
 			return GlobalFunction{}, err
 		}
-		_, ok := retTyp.(BasicType)
+		_, ok := retTyp.(types.BasicType)
 		if !ok {
 			return GlobalFunction{}, p.NewError(typ.Results.List[0].Pos(), "currently composite values can't be function returns")
 		}
