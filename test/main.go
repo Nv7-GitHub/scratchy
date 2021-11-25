@@ -13,7 +13,9 @@ type Sprite struct {
 }*/
 
 func (s *Sprite) main() {
-	Say("Hello, World!")
+	SayFor("Hello, World!", 1)
+	SayFor("1 + 2 is", 1)
+	Say(NumberToString(1 + 2))
 	/*a = s.add(1, 2)
 	s.value["a"] = a*/
 }

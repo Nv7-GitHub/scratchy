@@ -25,6 +25,9 @@ func (p *Program) AddExpr(expr ast.Expr) (*types.Value, error) {
 	case *ast.BasicLit:
 		return p.AddConst(e)
 
+	case *ast.BinaryExpr:
+		return p.AddMath(e)
+
 	default:
 		return nil, p.NewError(expr.Pos(), "unknown expression type: %T", e)
 	}
