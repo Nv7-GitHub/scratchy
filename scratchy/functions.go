@@ -3,6 +3,7 @@ package scratchy
 import (
 	"go/ast"
 
+	"github.com/Nv7-Github/scratch/blocks"
 	"github.com/Nv7-Github/scratchy/functions"
 	"github.com/Nv7-Github/scratchy/types"
 )
@@ -32,15 +33,22 @@ func (p *Program) AddFuncCall(expr *ast.CallExpr) (*types.Value, error) {
 }
 
 func (p *Program) AddReturn(stmt *ast.ReturnStmt) error {
-	v, err := p.AddExpr(stmt.Results[0])
-	if err != nil {
-		return err
-	}
-	if !v.Type.Equal(p.CurrFn.RetType) {
-		return p.NewError(stmt.Results[0].Pos(), "expected return type %s, got type %s", p.CurrFn.RetType.String(), v.Type.String())
+	if p.CurrFn.RetType != nil {
+		// Return value
+		v, err := p.AddExpr(stmt.Results[0])
+		if err != nil {
+			return err
+		}
+		if !v.Type.Equal(p.CurrFn.RetType) {
+			return p.NewError(stmt.Results[0].Pos(), "expected return type %s, got type %s", p.CurrFn.RetType.String(), v.Type.String())
+		}
+
+		blk := p.CurrSprite.Sprite.NewSetVariable(p.CurrFn.ReturnVal, v.Value)
+		p.CurrStack.Add(blk)
 	}
 
-	blk := p.CurrSprite.Sprite.NewSetVariable(p.CurrFn.ReturnVal, v.Value)
+	// Stop
+	blk := p.CurrSprite.Sprite.NewStop(blocks.StopOptionThisScript)
 	p.CurrStack.Add(blk)
 	return nil
 }

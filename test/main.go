@@ -12,17 +12,13 @@ type Sprite struct {
 	return a + b
 }*/
 
-func (s *Sprite) AddOneTwo() float64 {
+func (s *Sprite) addonetwo() float64 {
 	return 1 + 2
 }
 
 func (s *Sprite) main() {
-	SayFor("Hello, World!", 1)
-	SayFor("1 + 2 is", 1)
-	SayFor(NumberToString(1+2), 1)
-
-	SayFor("Is 1 equal to 1?", 1)
-	SayFor(BoolToString(1 == 1), 1)
+	//a := 1
 	/*a = s.add(1, 2)
 	s.value["a"] = a*/
+	return
 }
