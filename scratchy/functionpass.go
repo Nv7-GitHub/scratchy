@@ -42,9 +42,15 @@ func (p *Program) FunctionPass(file *ast.File) error {
 				}
 			}
 			fnVal := sprite.Sprite.NewFunction(parTypes...)
+
 			sprite.Functions[gfn.Name] = &Function{
 				GlobalFunction: gfn,
 				ScratchFuntion: fnVal,
+			}
+			if gfn.RetType != nil {
+				retValName := p.GetVarName("return_"+gfn.Name, false)
+				val := sprite.Sprite.AddVariable(retValName, "")
+				sprite.Functions[gfn.Name].ReturnVal = val
 			}
 		}
 	}
@@ -75,12 +81,13 @@ func (p *Program) GetGlobalFunction(fn *ast.FuncDecl) (GlobalFunction, error) {
 	}
 
 	var retType types.Type
+	var err error
 	if typ.Results != nil && len(typ.Results.List) > 0 {
-		retTyp, err := p.ConvType(typ.Results.List[0].Type)
+		retType, err = p.ConvType(typ.Results.List[0].Type)
 		if err != nil {
 			return GlobalFunction{}, err
 		}
-		_, ok := retTyp.(types.BasicType)
+		_, ok := retType.(types.BasicType)
 		if !ok {
 			return GlobalFunction{}, p.NewError(typ.Results.List[0].Pos(), "currently composite values can't be function returns")
 		}

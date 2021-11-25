@@ -12,6 +12,10 @@ type Sprite struct {
 	return a + b
 }*/
 
+func (s *Sprite) AddOneTwo() float64 {
+	return 1 + 2
+}
+
 func (s *Sprite) main() {
 	SayFor("Hello, World!", 1)
 	SayFor("1 + 2 is", 1)

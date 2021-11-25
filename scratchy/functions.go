@@ -30,3 +30,17 @@ func (p *Program) AddFuncCall(expr *ast.CallExpr) (*types.Value, error) {
 	}
 	return res, nil
 }
+
+func (p *Program) AddReturn(stmt *ast.ReturnStmt) error {
+	v, err := p.AddExpr(stmt.Results[0])
+	if err != nil {
+		return err
+	}
+	if !v.Type.Equal(p.CurrFn.RetType) {
+		return p.NewError(stmt.Results[0].Pos(), "expected return type %s, got type %s", p.CurrFn.RetType.String(), v.Type.String())
+	}
+
+	blk := p.CurrSprite.Sprite.NewSetVariable(p.CurrFn.ReturnVal, v.Value)
+	p.CurrStack.Add(blk)
+	return nil
+}

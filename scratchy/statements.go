@@ -12,6 +12,9 @@ func (p *Program) AddStmt(stmt ast.Stmt) error {
 		_, err := p.AddExpr(s.X)
 		return err
 
+	case *ast.ReturnStmt:
+		return p.AddReturn(s)
+
 	default:
 		return p.NewError(stmt.Pos(), "unknown statement type: %T", s)
 	}
@@ -37,6 +40,7 @@ func (p *Program) CodePass() error {
 	for _, sprite := range p.Sprites {
 		p.CurrSprite = sprite
 		for _, fn := range sprite.Functions {
+			p.CurrFn = fn
 			p.CurrStack = fn.ScratchFuntion
 			for _, stmt := range fn.Code.List {
 				err := p.AddStmt(stmt)

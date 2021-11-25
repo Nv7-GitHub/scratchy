@@ -49,6 +49,7 @@ type Sprite struct {
 type Function struct {
 	GlobalFunction
 	ScratchFuntion *blocks.Function
+	ReturnVal      *types.Variable
 }
 
 type Program struct {
@@ -59,6 +60,7 @@ type Program struct {
 	Fset *token.FileSet
 
 	CurrSprite *Sprite
+	CurrFn     *Function
 	CurrStack  blocks.Stack
 }
 
