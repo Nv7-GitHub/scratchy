@@ -33,7 +33,7 @@ func TestScratchy(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	prog := newProgram()
+	prog := newProgram(fset)
 	// Sprite pass
 	for _, pkg := range parsed {
 		for _, file := range pkg.Files {
@@ -51,6 +51,12 @@ func TestScratchy(t *testing.T) {
 	scratch.Stage.AddCostume(assets.CostumeBlank("background1"))
 	for _, sprite := range prog.Sprites {
 		sprite.Sprite.AddCostume(assets.CostumeScratchCat("cat"))
+	}
+
+	// Code Pass
+	err = prog.CodePass()
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	// Save

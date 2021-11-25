@@ -30,7 +30,11 @@ func (p *Program) SpritePass(file *ast.File) error {
 			}
 
 			// Sprite, initialize sprite object!
-			spec := struc.Specs[0].(*ast.TypeSpec)
+			spec, ok := struc.Specs[0].(*ast.TypeSpec)
+			// Not global variable or sprite, skip
+			if !ok {
+				continue
+			}
 			sprite := sprites.AddSprite(spec.Name.Name)
 			spriteV := &Sprite{
 				Name:      spec.Name.Name,

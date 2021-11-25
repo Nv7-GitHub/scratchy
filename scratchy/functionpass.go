@@ -89,5 +89,6 @@ func (p *Program) GetGlobalFunction(fn *ast.FuncDecl) (GlobalFunction, error) {
 		Name:    name,
 		Params:  params,
 		RetType: retType,
+		Code:    fn.Body,
 	}, nil
 }
