@@ -12,7 +12,7 @@ func (p *Program) GetVarName(name string, global bool) string {
 	if global {
 		dat = p.GlobalVariables
 	} else {
-		dat = p.CurrSprite.Variables
+		dat = p.Scope.Sprite.Variables
 	}
 
 	_, exists := dat[name]

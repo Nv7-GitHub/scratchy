@@ -25,7 +25,7 @@ func (p *Program) AddFuncCall(expr *ast.CallExpr) (*types.Value, error) {
 	}
 
 	// builtin func
-	res, err := functions.Call(p.CurrSprite.Sprite, p.CurrStack, name.Name, args)
+	res, err := functions.Call(p.Scope.Sprite.Sprite, p.Scope.Stack, name.Name, args)
 	if err != nil {
 		return nil, p.NewError(expr.Pos(), err.Error())
 	}
@@ -33,22 +33,22 @@ func (p *Program) AddFuncCall(expr *ast.CallExpr) (*types.Value, error) {
 }
 
 func (p *Program) AddReturn(stmt *ast.ReturnStmt) error {
-	if p.CurrFn.RetType != nil {
+	if p.Scope.Fn.RetType != nil {
 		// Return value
 		v, err := p.AddExpr(stmt.Results[0])
 		if err != nil {
 			return err
 		}
-		if !v.Type.Equal(p.CurrFn.RetType) {
-			return p.NewError(stmt.Results[0].Pos(), "expected return type %s, got type %s", p.CurrFn.RetType.String(), v.Type.String())
+		if !v.Type.Equal(p.Scope.Fn.RetType) {
+			return p.NewError(stmt.Results[0].Pos(), "expected return type %s, got type %s", p.Scope.Fn.RetType.String(), v.Type.String())
 		}
 
-		blk := p.CurrSprite.Sprite.NewSetVariable(p.CurrFn.ReturnVal, v.Value)
-		p.CurrStack.Add(blk)
+		blk := p.Scope.Sprite.Sprite.NewSetVariable(p.Scope.Fn.ReturnVal, v.Value)
+		p.Scope.Stack.Add(blk)
 	}
 
 	// Stop
-	blk := p.CurrSprite.Sprite.NewStop(blocks.StopOptionThisScript)
-	p.CurrStack.Add(blk)
+	blk := p.Scope.Sprite.Sprite.NewStop(blocks.StopOptionThisScript)
+	p.Scope.Stack.Add(blk)
 	return nil
 }

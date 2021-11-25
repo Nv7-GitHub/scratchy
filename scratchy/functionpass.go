@@ -25,6 +25,7 @@ func (p *Program) FunctionPass(file *ast.File) error {
 
 			// Get sprite
 			spriteName := fn.Recv.List[0].Type.(*ast.StarExpr).X.(*ast.Ident)
+			nm := fn.Recv.List[0].Names[0].Name
 			sprite, ok := p.Sprites[spriteName.Name]
 			if !ok {
 				return p.NewError(spriteName.Pos(), "unknown sprite: %s", spriteName)
@@ -44,8 +45,9 @@ func (p *Program) FunctionPass(file *ast.File) error {
 			fnVal := sprite.Sprite.NewFunction(parTypes...)
 
 			sprite.Functions[gfn.Name] = &Function{
-				GlobalFunction: gfn,
-				ScratchFuntion: fnVal,
+				GlobalFunction:  gfn,
+				ScratchFunction: fnVal,
+				SpriteName:      nm,
 			}
 			if gfn.RetType != nil {
 				retValName := p.GetVarName("return_"+gfn.Name, false)

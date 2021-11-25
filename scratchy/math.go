@@ -41,8 +41,8 @@ func (p *Program) AddMath(expr *ast.BinaryExpr) (*types.Value, error) {
 			return nil, p.NewError(expr.Y.Pos(), "math only accepts numbers")
 		}
 
-		blk := p.CurrSprite.Sprite.NewMath(v1.Value, v2.Value, mathOp)
-		p.CurrStack.Add(blk)
+		blk := p.Scope.Sprite.Sprite.NewMath(v1.Value, v2.Value, mathOp)
+		p.Scope.Stack.Add(blk)
 		return &types.Value{
 			Type:  types.NUMBER,
 			Value: values.NewBlockValue(blk),
@@ -59,8 +59,8 @@ func (p *Program) AddMath(expr *ast.BinaryExpr) (*types.Value, error) {
 			return nil, p.NewError(expr.Y.Pos(), "comparison operations only accept numbers")
 		}
 
-		blk := p.CurrSprite.Sprite.NewCompare(v1.Value, v2.Value, boolOp)
-		p.CurrStack.Add(blk)
+		blk := p.Scope.Sprite.Sprite.NewCompare(v1.Value, v2.Value, boolOp)
+		p.Scope.Stack.Add(blk)
 		return &types.Value{
 			Type:  types.BOOL,
 			Value: values.NewBlockValue(blk),

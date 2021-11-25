@@ -48,8 +48,16 @@ type Sprite struct {
 
 type Function struct {
 	GlobalFunction
-	ScratchFuntion *blocks.Function
-	ReturnVal      *types.Variable
+	ScratchFunction *blocks.Function
+	ReturnVal       *types.Variable
+	SpriteName      string
+}
+
+type Scope struct {
+	Sprite *Sprite
+	Fn     *Function
+	Stack  blocks.Stack
+	Vars   map[string]*Variable
 }
 
 type Program struct {
@@ -57,11 +65,8 @@ type Program struct {
 	GlobalVariables map[string]*Variable
 	Sprites         map[string]*Sprite
 
-	Fset *token.FileSet
-
-	CurrSprite *Sprite
-	CurrFn     *Function
-	CurrStack  blocks.Stack
+	Fset  *token.FileSet
+	Scope *Scope
 }
 
 func (p *Program) NewError(pos token.Pos, format string, args ...interface{}) error {
@@ -77,6 +82,7 @@ func newProgram(fset *token.FileSet) *Program {
 		GlobalFunctions: make(map[string]*GlobalFunction),
 		GlobalVariables: make(map[string]*Variable),
 		Sprites:         make(map[string]*Sprite),
+		Scope:           &Scope{},
 
 		Fset: fset,
 	}

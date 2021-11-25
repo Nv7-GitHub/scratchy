@@ -43,7 +43,7 @@ func (p *Program) SpritePass(file *ast.File) error {
 				Sprite:    sprite,
 			}
 			p.Sprites[spriteV.Name] = spriteV
-			p.CurrSprite = spriteV
+			p.Scope.Sprite = spriteV
 
 			// Add Fields
 			typ := spec.Type.(*ast.StructType)

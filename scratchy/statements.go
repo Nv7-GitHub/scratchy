@@ -15,6 +15,9 @@ func (p *Program) AddStmt(stmt ast.Stmt) error {
 	case *ast.ReturnStmt:
 		return p.AddReturn(s)
 
+	case *ast.AssignStmt:
+		return p.AddAssignStmt(s)
+
 	default:
 		return p.NewError(stmt.Pos(), "unknown statement type: %T", s)
 	}
@@ -38,10 +41,27 @@ func (p *Program) AddExpr(expr ast.Expr) (*types.Value, error) {
 
 func (p *Program) CodePass() error {
 	for _, sprite := range p.Sprites {
-		p.CurrSprite = sprite
+		p.Scope = &Scope{
+			Sprite: sprite,
+			Vars:   make(map[string]*Variable),
+		}
 		for _, fn := range sprite.Functions {
-			p.CurrFn = fn
-			p.CurrStack = fn.ScratchFuntion
+			p.Scope.Fn = fn
+			p.Scope.Stack = fn.ScratchFunction
+			// Add function params
+			for i, par := range fn.Params {
+				p.Scope.Vars[par.Name] = &Variable{
+					Name:  par.Name,
+					Type:  par.Type,
+					Value: fn.ScratchFunction.Parameters[i],
+				}
+			}
+			// Add global params
+			for _, par := range p.GlobalVariables {
+				p.Scope.Vars[par.Name] = par
+			}
+
+			// Add stmts
 			for _, stmt := range fn.Code.List {
 				err := p.AddStmt(stmt)
 				if err != nil {
@@ -53,8 +73,8 @@ func (p *Program) CodePass() error {
 		// Main function?
 		fn, exists := sprite.Functions["main"]
 		if exists && len(fn.Params) == 0 {
-			onStart := p.CurrSprite.Sprite.NewWhenFlagClicked()
-			call, err := p.CurrSprite.Sprite.NewFunctionCall(fn.ScratchFuntion)
+			onStart := p.Scope.Sprite.Sprite.NewWhenFlagClicked()
+			call, err := p.Scope.Sprite.Sprite.NewFunctionCall(fn.ScratchFunction)
 			if err != nil {
 				return err
 			}
