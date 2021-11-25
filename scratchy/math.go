@@ -16,7 +16,7 @@ var mathOps = map[token.Token]blocks.MathOperation{
 	token.QUO: blocks.MathOperationDivide,
 }
 
-var boolOps = map[token.Token]blocks.CompareOperand{
+var compareOps = map[token.Token]blocks.CompareOperand{
 	token.EQL: blocks.CompareEqual,
 	token.LSS: blocks.CompareLessThan,
 	token.GTR: blocks.CompareGreaterThan,
@@ -31,7 +31,6 @@ func (p *Program) AddMath(expr *ast.BinaryExpr) (*types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	// Math op?
 	mathOp, exists := mathOps[expr.Op]
 	if exists {
@@ -50,14 +49,14 @@ func (p *Program) AddMath(expr *ast.BinaryExpr) (*types.Value, error) {
 		}, nil
 	}
 
-	// Logical op?
-	boolOp, exists := boolOps[expr.Op]
+	// Compare op?
+	boolOp, exists := compareOps[expr.Op]
 	if exists {
-		if !v1.Type.Equal(types.BOOL) {
-			return nil, p.NewError(expr.X.Pos(), "boolean operations only accept booleans")
+		if !v1.Type.Equal(types.NUMBER) {
+			return nil, p.NewError(expr.X.Pos(), "comparison operations only accept numbers")
 		}
-		if !v2.Type.Equal(types.BOOL) {
-			return nil, p.NewError(expr.Y.Pos(), "boolean operations only accept booleans")
+		if !v2.Type.Equal(types.NUMBER) {
+			return nil, p.NewError(expr.Y.Pos(), "comparison operations only accept numbers")
 		}
 
 		blk := p.CurrSprite.Sprite.NewCompare(v1.Value, v2.Value, boolOp)

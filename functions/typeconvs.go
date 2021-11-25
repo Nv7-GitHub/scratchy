@@ -31,4 +31,15 @@ func init() {
 		},
 	}
 
+	functions["BoolToString"] = Function{
+		ParamTypes: []types.Type{types.BOOL},
+		ParamNames: []string{"bool"},
+		ReturnType: types.STRING,
+		Function: func(sprite *sprites.Sprite, stack blocks.Stack, params []*types.Value) (*types.Value, error) {
+			return &types.Value{
+				Value: params[0].Value,
+				Type:  types.STRING,
+			}, nil
+		},
+	}
 }
