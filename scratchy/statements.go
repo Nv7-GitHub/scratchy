@@ -21,6 +21,12 @@ func (p *Program) AddStmt(stmt ast.Stmt) error {
 	case *ast.IfStmt:
 		return p.AddIf(s)
 
+	case *ast.IncDecStmt:
+		return p.IncDecStmt(s)
+
+	case *ast.ForStmt:
+		return p.AddLoop(s)
+
 	default:
 		return p.NewError(stmt.Pos(), "unknown statement type: %T", s)
 	}

@@ -19,11 +19,18 @@ func (p *Program) AddAssignStmt(stmt *ast.AssignStmt) error {
 	if stmt.Tok == token.DEFINE {
 		name := stmt.Lhs[0].(*ast.Ident).Name
 		vName := p.GetVarName(name, false)
-		p.Scope.Vars[name] = &Variable{
+
+		v := p.Scope.Sprite.Sprite.AddVariable(vName, "")
+		set := p.Scope.Sprite.Sprite.NewSetVariable(v, rhs.Value)
+		p.Scope.Stack.Add(set)
+
+		val := &Variable{
 			Name:  vName,
 			Type:  rhs.Type,
-			Value: rhs,
+			Value: v,
 		}
+		p.Scope.Vars[name] = val
+		p.Scope.Sprite.Variables[vName] = val
 		return nil
 	}
 
@@ -226,4 +233,25 @@ func (p *Program) AddIndex(expr *ast.IndexExpr) (*types.Value, error) {
 	default:
 		return nil, p.NewError(expr.Pos(), "cannot index type %s", v.Type.String())
 	}
+}
+
+func (p *Program) IncDecStmt(stmt *ast.IncDecStmt) error {
+	v, err := p.GetBasicVariable(stmt.X)
+	if err != nil {
+		return err
+	}
+
+	if !v.Type.Equal(types.NUMBER) {
+		return p.NewError(stmt.Pos(), "cannot increment/decrement non-number type")
+	}
+
+	if stmt.Tok == token.INC {
+		blk := p.Scope.Sprite.Sprite.NewChangeVariable(v.Value.(*styps.Variable), values.NewIntValue(1))
+		p.Scope.Stack.Add(blk)
+	} else {
+		blk := p.Scope.Sprite.Sprite.NewChangeVariable(v.Value.(*styps.Variable), values.NewIntValue(-1))
+		p.Scope.Stack.Add(blk)
+	}
+
+	return nil
 }

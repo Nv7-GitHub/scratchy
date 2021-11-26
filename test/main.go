@@ -11,13 +11,7 @@ func add(a, b float64) float64 {
 }
 
 func (s *Sprite) main() {
-	s.val = BoolToString("a" == "A")
-	SayFor(s.val, 1)
-
-	s.val = "Hello, " + "World!"
-	SayFor(s.val, 1)
-
-	if 1 == 1 {
-		Say("Hello, World!")
+	for i := 0.0; i < 100; i++ {
+		SayFor(NumberToString(i), 0.05)
 	}
 }
