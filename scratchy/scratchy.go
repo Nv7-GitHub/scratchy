@@ -56,7 +56,7 @@ type Function struct {
 type Scope struct {
 	Sprite *Sprite
 	Fn     *Function
-	Stack  blocks.Stack
+	Stack  styps.Stack
 	Vars   map[string]*Variable
 }
 

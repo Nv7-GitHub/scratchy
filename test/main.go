@@ -16,4 +16,8 @@ func (s *Sprite) main() {
 
 	s.val = "Hello, " + "World!"
 	SayFor(s.val, 1)
+
+	if 1 == 1 {
+		Say("Hello, World!")
+	}
 }

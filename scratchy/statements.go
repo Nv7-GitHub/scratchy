@@ -18,6 +18,9 @@ func (p *Program) AddStmt(stmt ast.Stmt) error {
 	case *ast.AssignStmt:
 		return p.AddAssignStmt(s)
 
+	case *ast.IfStmt:
+		return p.AddIf(s)
+
 	default:
 		return p.NewError(stmt.Pos(), "unknown statement type: %T", s)
 	}
