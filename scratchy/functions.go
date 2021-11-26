@@ -4,6 +4,8 @@ import (
 	"go/ast"
 
 	"github.com/Nv7-Github/scratch/blocks"
+	styps "github.com/Nv7-Github/scratch/types"
+	"github.com/Nv7-Github/scratch/values"
 	"github.com/Nv7-Github/scratchy/functions"
 	"github.com/Nv7-Github/scratchy/types"
 )
@@ -17,7 +19,43 @@ func (p *Program) AddFuncCall(expr *ast.CallExpr) (*types.Value, error) {
 
 	name, ok := expr.Fun.(*ast.Ident)
 	if !ok {
-		return nil, p.NewError(expr.Fun.Pos(), "calling sprite functions is currently unsupported")
+		spriteName := expr.Fun.(*ast.SelectorExpr).X.(*ast.Ident).Name
+		funcName := expr.Fun.(*ast.SelectorExpr).Sel.Name
+		if spriteName != p.Scope.Fn.SpriteName {
+			return nil, p.NewError(expr.Pos(), "unknown sprite: %s", spriteName)
+		}
+		fn, exists := p.Scope.Sprite.Functions[funcName]
+		if !exists {
+			return nil, p.NewError(expr.Pos(), "unknown sprite function: %s", funcName)
+		}
+
+		// Check args
+		if len(args) != len(fn.Params) {
+			return nil, p.NewError(expr.Pos(), "expected %d arguments, got %d", len(fn.Params), len(args))
+		}
+		for i, arg := range args {
+			if !arg.Type.Equal(fn.Params[i].Type) {
+				return nil, p.NewError(expr.Pos(), "expected argument %d to %s to be type %s, got type %s", i, fn.Name, fn.Params[i].Type.String(), arg.Type.String())
+			}
+		}
+
+		// Call
+		pars := make([]styps.Value, len(args))
+		for i, arg := range args {
+			pars[i] = arg.Value
+		}
+		call, err := p.Scope.Sprite.Sprite.NewFunctionCall(fn.ScratchFunction, pars...)
+		if err != nil {
+			return nil, err
+		}
+		p.Scope.Stack.Add(call)
+		if fn.RetType != nil {
+			return &types.Value{
+				Type:  fn.RetType,
+				Value: values.NewVariableValue(fn.ReturnVal),
+			}, nil
+		}
+		return nil, nil
 	}
 	_, exists := p.GlobalFunctions[name.Name]
 	if exists {
