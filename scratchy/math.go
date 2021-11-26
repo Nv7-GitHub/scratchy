@@ -22,6 +22,11 @@ var compareOps = map[token.Token]blocks.CompareOperand{
 	token.GTR: blocks.CompareGreaterThan,
 }
 
+var logicalOps = map[token.Token]blocks.LogicalOp{
+	token.AND: blocks.LogicalOpAnd,
+	token.OR:  blocks.LogicalOpOr,
+}
+
 func (p *Program) AddMath(expr *ast.BinaryExpr) (*types.Value, error) {
 	v1, err := p.AddExpr(expr.X)
 	if err != nil {
@@ -31,6 +36,47 @@ func (p *Program) AddMath(expr *ast.BinaryExpr) (*types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// String ops?
+	if v1.Type.Equal(types.STRING) && v2.Type.Equal(types.STRING) {
+		if expr.Op == token.EQL {
+			blk := p.Scope.Sprite.Sprite.NewCompare(v1.Value, v2.Value, blocks.CompareEqual)
+			p.Scope.Stack.Add(blk)
+			return &types.Value{
+				Type:  types.BOOL,
+				Value: values.NewBlockValue(blk),
+			}, nil
+		}
+
+		if expr.Op == token.ADD {
+			concat := p.Scope.Sprite.Sprite.NewConcat(v1.Value, v2.Value)
+			p.Scope.Stack.Add(concat)
+
+			return &types.Value{
+				Type:  types.STRING,
+				Value: values.NewBlockValue(concat),
+			}, nil
+		}
+	}
+
+	// Logical ops?
+	logOp, exists := logicalOps[expr.Op]
+	if exists {
+		if !v1.Type.Equal(types.BOOL) {
+			return nil, p.NewError(expr.X.Pos(), "logical ops only accept booleans")
+		}
+		if !v2.Type.Equal(types.BOOL) {
+			return nil, p.NewError(expr.Y.Pos(), "logical ops only accept booleans")
+		}
+
+		blk := p.Scope.Sprite.Sprite.NewLogicalOperation(v1.Value, v2.Value, logOp)
+		p.Scope.Stack.Add(blk)
+		return &types.Value{
+			Type:  types.BOOL,
+			Value: values.NewBlockValue(blk),
+		}, nil
+	}
+
 	// Math op?
 	mathOp, exists := mathOps[expr.Op]
 	if exists {
