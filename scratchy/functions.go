@@ -57,9 +57,47 @@ func (p *Program) AddFuncCall(expr *ast.CallExpr) (*types.Value, error) {
 		}
 		return nil, nil
 	}
-	_, exists := p.GlobalFunctions[name.Name]
+	gfn, exists := p.GlobalFunctions[name.Name]
 	if exists {
-		return nil, p.NewError(expr.Fun.Pos(), "calling global functions is currently unsupported")
+		// Add function if not exists
+		_, exists := p.Scope.Sprite.Functions[gfn.Name]
+		var fn *Function
+		if !exists {
+			// Add function def
+			fn, err = p.GetSpriteFunction(p.Scope.Sprite, *gfn, "")
+			if err != nil {
+				return nil, err
+			}
+
+			// Add function code
+			scope := *p.Scope
+			p.Scope = &Scope{
+				Sprite: p.Scope.Sprite,
+			}
+			err = p.AddFuncCode(fn)
+			if err != nil {
+				return nil, err
+			}
+			p.Scope = &scope
+		}
+
+		// Call
+		pars := make([]styps.Value, len(args))
+		for i, arg := range args {
+			pars[i] = arg.Value
+		}
+		call, err := p.Scope.Sprite.Sprite.NewFunctionCall(fn.ScratchFunction, pars...)
+		if err != nil {
+			return nil, err
+		}
+		p.Scope.Stack.Add(call)
+		if fn.RetType != nil {
+			return &types.Value{
+				Type:  fn.RetType,
+				Value: values.NewVariableValue(fn.ReturnVal),
+			}, nil
+		}
+		return nil, nil
 	}
 
 	// builtin func

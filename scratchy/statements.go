@@ -48,36 +48,45 @@ func (p *Program) AddExpr(expr ast.Expr) (*types.Value, error) {
 	}
 }
 
+func (p *Program) AddFuncCode(fn *Function) error {
+	p.Scope.Fn = fn
+	p.Scope.Stack = fn.ScratchFunction
+	p.Scope.Vars = make(map[string]*Variable)
+
+	// Add global params
+	for _, par := range p.GlobalVariables {
+		p.Scope.Vars[par.Name] = par
+	}
+
+	// Add function params
+	for i, par := range fn.Params {
+		p.Scope.Vars[par.Name] = &Variable{
+			Name:  par.Name,
+			Type:  par.Type,
+			Value: fn.ScratchFunction.Parameters[i],
+		}
+	}
+
+	// Add stmts
+	for _, stmt := range fn.Code.List {
+		err := p.AddStmt(stmt)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (p *Program) CodePass() error {
 	for _, sprite := range p.Sprites {
 		p.Scope = &Scope{
 			Sprite: sprite,
-			Vars:   make(map[string]*Variable),
 		}
 		for _, fn := range sprite.Functions {
-			p.Scope.Fn = fn
-			p.Scope.Stack = fn.ScratchFunction
-
-			// Add global params
-			for _, par := range p.GlobalVariables {
-				p.Scope.Vars[par.Name] = par
-			}
-
-			// Add function params
-			for i, par := range fn.Params {
-				p.Scope.Vars[par.Name] = &Variable{
-					Name:  par.Name,
-					Type:  par.Type,
-					Value: fn.ScratchFunction.Parameters[i],
-				}
-			}
-
-			// Add stmts
-			for _, stmt := range fn.Code.List {
-				err := p.AddStmt(stmt)
-				if err != nil {
-					return err
-				}
+			err := p.AddFuncCode(fn)
+			if err != nil {
+				return err
 			}
 		}
 
@@ -91,6 +100,8 @@ func (p *Program) CodePass() error {
 			}
 			onStart.Add(call)
 		}
+
+		return nil
 	}
 
 	return nil

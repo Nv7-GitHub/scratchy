@@ -32,31 +32,41 @@ func (p *Program) FunctionPass(file *ast.File) error {
 			}
 
 			// Local function
-			parTypes := []blocks.FunctionParameter{blocks.NewFunctionParameterLabel(gfn.Name)}
-			for _, par := range gfn.Params {
-				switch par.Type.(types.BasicType) {
-				case types.NUMBER, types.STRING:
-					parTypes = append(parTypes, blocks.NewFunctionParameterValue(par.Name, blocks.FunctionParameterString, ""))
-
-				case types.BOOL:
-					parTypes = append(parTypes, blocks.NewFunctionParameterValue(par.Name, blocks.FunctionParameterBool, false))
-				}
+			fnV, err := p.GetSpriteFunction(sprite, gfn, nm)
+			if err != nil {
+				return err
 			}
-			fnVal := sprite.Sprite.NewFunction(parTypes...)
-
-			sprite.Functions[gfn.Name] = &Function{
-				GlobalFunction:  gfn,
-				ScratchFunction: fnVal,
-				SpriteName:      nm,
-			}
-			if gfn.RetType != nil {
-				retValName := p.GetVarName("return_"+gfn.Name, false)
-				val := sprite.Sprite.AddVariable(retValName, "")
-				sprite.Functions[gfn.Name].ReturnVal = val
-			}
+			sprite.Functions[fnV.Name] = fnV
 		}
 	}
 	return nil
+}
+
+func (p *Program) GetSpriteFunction(sprite *Sprite, gfn GlobalFunction, spriteName string) (*Function, error) {
+	parTypes := []blocks.FunctionParameter{blocks.NewFunctionParameterLabel(gfn.Name)}
+	for _, par := range gfn.Params {
+		switch par.Type.(types.BasicType) {
+		case types.NUMBER, types.STRING:
+			parTypes = append(parTypes, blocks.NewFunctionParameterValue(par.Name, blocks.FunctionParameterString, ""))
+
+		case types.BOOL:
+			parTypes = append(parTypes, blocks.NewFunctionParameterValue(par.Name, blocks.FunctionParameterBool, false))
+		}
+	}
+	fnVal := sprite.Sprite.NewFunction(parTypes...)
+
+	fn := &Function{
+		GlobalFunction:  gfn,
+		ScratchFunction: fnVal,
+		SpriteName:      spriteName,
+	}
+	if gfn.RetType != nil {
+		retValName := p.GetVarName("return_"+gfn.Name, false)
+		val := sprite.Sprite.AddVariable(retValName, "")
+		fn.ReturnVal = val
+	}
+
+	return fn, nil
 }
 
 func (p *Program) GetGlobalFunction(fn *ast.FuncDecl) (GlobalFunction, error) {
