@@ -137,3 +137,93 @@ func (p *Program) GetBasicVariable(expr ast.Expr) (*Variable, error) {
 	}
 	return v, nil
 }
+
+func (p *Program) AddGetVar(v *Variable, pos token.Pos) (*types.Value, error) {
+	var val styps.Value
+	_, ok := v.Type.(types.BasicType)
+	if ok {
+		_, ok := v.Value.(*blocks.ScratchParamValue)
+		if ok {
+			val = v.Value.(*blocks.ScratchParamValue) // It's a function param
+		} else {
+			val = values.NewVariableValue(v.Value.(*styps.Variable))
+		}
+	} else {
+		_, ok := v.Type.(*types.ArrayType)
+		if ok {
+			val = values.NewListValue(v.Value.(ArrayValue).Val)
+		} else {
+			return nil, p.NewError(pos, "cannot get value of type %s", v.Type.String())
+		}
+	}
+
+	return &types.Value{
+		Type:  v.Type,
+		Value: val,
+	}, nil
+}
+
+func (p *Program) AddIdent(expr *ast.Ident) (*types.Value, error) {
+	v, exists := p.Scope.Vars[expr.Name]
+	if !exists {
+		return nil, p.NewError(expr.Pos(), "undefined variable: %s", expr.Name)
+	}
+	return p.AddGetVar(v, expr.Pos())
+}
+
+func (p *Program) AddSelector(expr *ast.SelectorExpr) (*types.Value, error) {
+	spriteName := expr.X.(*ast.Ident).Name
+	varName := expr.Sel.Name
+	if p.Scope.Fn.SpriteName != spriteName {
+		return nil, p.NewError(expr.X.Pos(), "unknown sprite: %s", spriteName)
+	}
+
+	v, exists := p.Scope.Sprite.Variables[varName]
+	if !exists {
+		return nil, p.NewError(expr.Sel.Pos(), "unknown sprite variable: %s", varName)
+	}
+	return p.AddGetVar(v, expr.Sel.Pos())
+}
+
+func (p *Program) AddIndex(expr *ast.IndexExpr) (*types.Value, error) {
+	v, err := p.GetBasicVariable(expr.X)
+	if err != nil {
+		return nil, err
+	}
+	ind, err := p.AddExpr(expr.Index)
+	if err != nil {
+		return nil, err
+	}
+
+	switch typ := v.Type.(type) {
+	case *types.ArrayType:
+		if !ind.Type.Equal(types.NUMBER) {
+			return nil, p.NewError(expr.Index.Pos(), "expected index to be type %s, got type %s", types.NUMBER.String(), ind.Type.String())
+		}
+
+		blk := p.Scope.Sprite.Sprite.NewItemOfList(v.Value.(ArrayValue).Val, ind.Value)
+		p.Scope.Stack.Add(blk)
+		return &types.Value{
+			Type:  typ.ValueType,
+			Value: values.NewBlockValue(blk),
+		}, nil
+
+	case *types.MapType:
+		if !ind.Type.Equal(typ.KeyType) {
+			return nil, p.NewError(expr.Index.Pos(), "expected key to be type %s, got type %s", typ.KeyType.String(), ind.Type.String())
+		}
+		keyInd := p.Scope.Sprite.Sprite.NewFindInList(v.Value.(MapValue).Key, ind.Value)
+		p.Scope.Stack.Add(keyInd)
+
+		blk := p.Scope.Sprite.Sprite.NewItemOfList(v.Value.(MapValue).Val, values.NewBlockValue(keyInd))
+		p.Scope.Stack.Add(blk)
+
+		return &types.Value{
+			Type:  typ.ValType,
+			Value: values.NewBlockValue(blk),
+		}, nil
+
+	default:
+		return nil, p.NewError(expr.Pos(), "cannot index type %s", v.Type.String())
+	}
+}

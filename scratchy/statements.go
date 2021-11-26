@@ -34,6 +34,15 @@ func (p *Program) AddExpr(expr ast.Expr) (*types.Value, error) {
 	case *ast.BinaryExpr:
 		return p.AddMath(e)
 
+	case *ast.Ident:
+		return p.AddIdent(e)
+
+	case *ast.SelectorExpr:
+		return p.AddSelector(e)
+
+	case *ast.IndexExpr:
+		return p.AddIndex(e)
+
 	default:
 		return nil, p.NewError(expr.Pos(), "unknown expression type: %T", e)
 	}
@@ -48,6 +57,12 @@ func (p *Program) CodePass() error {
 		for _, fn := range sprite.Functions {
 			p.Scope.Fn = fn
 			p.Scope.Stack = fn.ScratchFunction
+
+			// Add global params
+			for _, par := range p.GlobalVariables {
+				p.Scope.Vars[par.Name] = par
+			}
+
 			// Add function params
 			for i, par := range fn.Params {
 				p.Scope.Vars[par.Name] = &Variable{
@@ -55,10 +70,6 @@ func (p *Program) CodePass() error {
 					Type:  par.Type,
 					Value: fn.ScratchFunction.Parameters[i],
 				}
-			}
-			// Add global params
-			for _, par := range p.GlobalVariables {
-				p.Scope.Vars[par.Name] = par
 			}
 
 			// Add stmts
