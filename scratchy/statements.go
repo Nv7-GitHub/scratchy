@@ -27,6 +27,9 @@ func (p *Program) AddStmt(stmt ast.Stmt) error {
 	case *ast.ForStmt:
 		return p.AddLoop(s)
 
+	case *ast.RangeStmt:
+		return p.AddRange(s)
+
 	default:
 		return p.NewError(stmt.Pos(), "unknown statement type: %T", s)
 	}

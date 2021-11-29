@@ -3,7 +3,7 @@ package main
 import . "github.com/Nv7-Github/scratchy/scratch"
 
 type Sprite struct {
-	val string
+	console []string
 }
 
 func add(a, b float64) float64 {
@@ -11,7 +11,6 @@ func add(a, b float64) float64 {
 }
 
 func (s *Sprite) main() {
-	for i := 0.0; i < 100; i++ {
-		SayFor(NumberToString(i), 0.05)
-	}
+	v := add(1, 2)
+	s.console = append(s.console, "v: "+NumberToString(v))
 }

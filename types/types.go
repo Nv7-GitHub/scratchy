@@ -19,12 +19,17 @@ const (
 	BOOL
 	ARRAY
 	MAP
+	ANY
 )
 
 var basicTypeNames = map[BasicType]string{
 	NUMBER: "number",
 	STRING: "string",
 	BOOL:   "bool",
+	ANY:    "any",
+
+	ARRAY: "array",
+	MAP:   "map",
 }
 
 func (b BasicType) BasicType() BasicType {
@@ -32,6 +37,9 @@ func (b BasicType) BasicType() BasicType {
 }
 
 func (b BasicType) Equal(t Type) bool {
+	if b == ANY || t == ANY {
+		return true
+	}
 	return t.BasicType() == b
 }
 

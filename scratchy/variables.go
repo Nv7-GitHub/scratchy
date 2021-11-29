@@ -48,6 +48,9 @@ func (p *Program) AddAssignStmt(stmt *ast.AssignStmt) error {
 		}
 		_, ok := v.Type.(types.BasicType)
 		if !ok {
+			if rhs == nil {
+				return nil // when assigning list to append(), it uses this
+			}
 			return p.NewError(l.Pos(), "cannot assign composite value directly")
 		}
 		if !rhs.Type.Equal(v.Type) {

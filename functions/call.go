@@ -15,7 +15,7 @@ func Call(sprite *sprites.Sprite, stack types.Stack, fnName string, params []*ty
 
 	// Check par types
 	for i, par := range params {
-		if !par.Type.Equal(fn.ParamTypes[i]) {
+		if !fn.ParamTypes[i].Equal(par.Type) {
 			return nil, fmt.Errorf("invalid parameter type for %s: expected %s, got %s", fnName, fn.ParamTypes[i].String(), par.Type.String())
 		}
 	}
