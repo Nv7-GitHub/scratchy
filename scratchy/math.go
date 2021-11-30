@@ -23,8 +23,8 @@ var compareOps = map[token.Token]blocks.CompareOperand{
 }
 
 var logicalOps = map[token.Token]blocks.LogicalOp{
-	token.AND: blocks.LogicalOpAnd,
-	token.OR:  blocks.LogicalOpOr,
+	token.LAND: blocks.LogicalOpAnd,
+	token.LOR:  blocks.LogicalOpOr,
 }
 
 func (p *Program) AddMath(expr *ast.BinaryExpr) (*types.Value, error) {

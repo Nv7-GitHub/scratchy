@@ -3,21 +3,35 @@ package main
 import . "github.com/Nv7-Github/scratchy/scratch"
 
 type Sprite struct {
-	vals    map[string]float64
-	console []string
-}
-
-func add(a, b float64) float64 {
-	return a + b
+	vals []float64
 }
 
 func (s *Sprite) main() {
-	s.vals["a"] = 1
-	s.vals["b"] = 2
-	s.vals["c"] = 3
+	ClearNumberArray(s.vals)
+	s.vals = append(s.vals, 3)
+	s.vals = append(s.vals, 2)
+	s.vals = append(s.vals, 2.5)
+	s.vals = append(s.vals, 1)
 
-	for k, v := range s.vals {
-		s.console = append(s.console, "key: "+k)
-		s.console = append(s.console, "val: "+NumberToString(v))
+	Say("It's unsorted!")
+	Wait(1)
+	Say("Sorting...")
+
+	numSorted := 1
+	for (numSorted < len(s.vals)) || (numSorted == len(s.vals)) {
+		smallest := s.vals[numSorted]
+		smallestInd := numSorted
+		for i := numSorted; i < len(s.vals)+1; i++ {
+			if s.vals[i] < smallest {
+				smallest = s.vals[i]
+				smallestInd = i
+			}
+		}
+		v := s.vals[numSorted]
+		s.vals[numSorted] = s.vals[smallestInd]
+		s.vals[smallestInd] = v
+		numSorted++
 	}
+
+	SayFor("It's sorted!", 1)
 }

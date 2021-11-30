@@ -1,6 +1,6 @@
 package scratch
 
-func SayFor(text string, time float64) {}
+func Say(text string) {}
 
 func NumberToString(value float64) string {
 	return ""
@@ -14,5 +14,13 @@ func BoolToString(bool bool) string {
 	return ""
 }
 
-func Say(text string) {}
+func Wait(time float64) {}
+
+func ClearNumberArray(array []float64) {}
+
+func ClearBoolArray(array []bool) {}
+
+func ClearStringArray(array []string) {}
+
+func SayFor(text string, time float64) {}
 

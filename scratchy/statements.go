@@ -55,6 +55,9 @@ func (p *Program) AddExpr(expr ast.Expr) (*types.Value, error) {
 	case *ast.IndexExpr:
 		return p.AddIndex(e)
 
+	case *ast.ParenExpr:
+		return p.AddExpr(e.X)
+
 	default:
 		return nil, p.NewError(expr.Pos(), "unknown expression type: %T", e)
 	}
