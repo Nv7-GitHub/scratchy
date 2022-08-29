@@ -1,5 +1,7 @@
 package main
 
+// Test scratchy program
+
 import . "github.com/Nv7-Github/scratchy/scratch"
 
 type Sprite struct {
@@ -7,7 +9,7 @@ type Sprite struct {
 }
 
 func (s *Sprite) main() {
-	ClearNumberArray(s.vals)
+	Clear(s.vals)
 	s.vals = append(s.vals, 3)
 	s.vals = append(s.vals, 2)
 	s.vals = append(s.vals, 2.5)

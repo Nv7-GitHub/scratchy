@@ -1,6 +1,6 @@
 module github.com/Nv7-Github/scratchy
 
-go 1.17
+go 1.18
 
 require github.com/Nv7-Github/scratch v0.0.0-20211129070001-102030d0b8f7
 
