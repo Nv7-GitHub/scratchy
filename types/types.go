@@ -18,19 +18,8 @@ const (
 	STRING
 	BOOL
 	ARRAY
-	MAP
 	ANY
 )
-
-var basicTypeNames = map[BasicType]string{
-	NUMBER: "number",
-	STRING: "string",
-	BOOL:   "bool",
-	ANY:    "any",
-
-	ARRAY: "array",
-	MAP:   "map",
-}
 
 func (b BasicType) BasicType() BasicType {
 	return b
@@ -44,7 +33,7 @@ func (b BasicType) Equal(t Type) bool {
 }
 
 func (b BasicType) String() string {
-	return basicTypeNames[b]
+	return [...]string{"numnber", "string", "bool", "array", "any"}[b]
 }
 
 type ArrayType struct {
@@ -68,28 +57,4 @@ func (a *ArrayType) Equal(t Type) bool {
 
 func (a *ArrayType) String() string {
 	return fmt.Sprintf("array<%s>", a.ValueType.String())
-}
-
-type MapType struct {
-	KeyType BasicType
-	ValType BasicType
-}
-
-func NewMapType(keyType, valType BasicType) *MapType {
-	return &MapType{keyType, valType}
-}
-
-func (m *MapType) BasicType() BasicType {
-	return MAP
-}
-
-func (m *MapType) Equal(t Type) bool {
-	if t.BasicType() != MAP {
-		return false
-	}
-	return t.(*MapType).KeyType == m.KeyType && t.(*MapType).ValType == m.ValType
-}
-
-func (m *MapType) String() string {
-	return fmt.Sprintf("map<%s, %s>", m.KeyType.String(), m.ValType.String())
 }
