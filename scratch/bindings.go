@@ -3,26 +3,26 @@ package scratch
 
 // Motion
 
-func Move(steps int)
-func Turn(deg int) // Clockwise
+func Move(steps int) {}
+func Turn(deg int)   {} // Clockwise
 
 // Looks
 
-func Say(text string)
-func SayFor(text string, time float64)
-func Think(text string)
-func ThinkFor(text string, time float64)
-func Show()
-func Hide()
+func Say(text string)                    {}
+func SayFor(text string, time float64)   {}
+func Think(text string)                  {}
+func ThinkFor(text string, time float64) {}
+func Show()                              {}
+func Hide()                              {}
 
 // Events
 
-func Broadcast(message string)
-func BroadcastWait(message string) // Like broadcast, but it waits for all scripts triggered by the broadcast to finish
+func Broadcast(message string)     {}
+func BroadcastWait(message string) {} // Like broadcast, but it waits for all scripts triggered by the broadcast to finish
 
 // Control
 
-func Wait(time float64)
+func Wait(time float64) {}
 
 // Lists
 

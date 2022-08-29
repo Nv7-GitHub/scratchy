@@ -2,7 +2,7 @@ package main
 
 // Test scratchy program
 
-import . "github.com/Nv7-Github/scratchy/scratch"
+import "github.com/Nv7-Github/scratchy/scratch"
 
 var global int
 
@@ -13,18 +13,19 @@ type Sprite struct {
 	tmp       float64 // buffer
 }
 
+//scratchy:main
 func (s *Sprite) main() {
 	global = 10
 
-	Clear(s.vals)
-	Append(s.vals, 3)
-	Append(s.vals, 2)
-	Append(s.vals, 2.5)
-	Append(s.vals, 1)
+	scratch.Clear(s.vals)
+	scratch.Append(s.vals, 3)
+	scratch.Append(s.vals, 2)
+	scratch.Append(s.vals, 2.5)
+	scratch.Append(s.vals, 1)
 
-	Say("It's unsorted!")
-	Wait(1)
-	Say("Sorting...")
+	scratch.Say("It's unsorted!")
+	scratch.Wait(1)
+	scratch.Say("Sorting...")
 
 	s.numSorted = 1
 	for (s.numSorted < len(s.vals)) || (s.numSorted == len(s.vals)) {
@@ -42,5 +43,5 @@ func (s *Sprite) main() {
 		s.numSorted++
 	}
 
-	SayFor("It's sorted!", 1)
+	scratch.SayFor("It's sorted!", 1)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go/ast"
 	"go/parser"
 	"go/token"
 
@@ -15,7 +16,11 @@ func main() {
 	}
 
 	b := scratchy.NewBuilder()
-	err = b.Build(fset, f["main"].Files)
+	files := make([]*ast.File, 0, len(f["main"].Files))
+	for _, file := range f["main"].Files {
+		files = append(files, file)
+	}
+	err = b.Build("test", fset, files)
 	if err != nil {
 		panic(err)
 	}

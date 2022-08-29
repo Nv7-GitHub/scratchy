@@ -8,18 +8,22 @@ import (
 )
 
 type Builder struct {
-	files map[string]*ast.File
+	files []*ast.File
 	fset  *token.FileSet
+	path  string
+
+	sprites map[string]*Sprite
 }
 
 func NewBuilder() *Builder {
 	return &Builder{}
 }
 
-func (b *Builder) Build(fset *token.FileSet, files map[string]*ast.File) error {
+func (b *Builder) Build(path string, fset *token.FileSet, files []*ast.File) error {
 	scratch.Clear()
 	b.fset = fset
 	b.files = files
+	b.path = path
 
-	return nil
+	return b.TypePass()
 }
